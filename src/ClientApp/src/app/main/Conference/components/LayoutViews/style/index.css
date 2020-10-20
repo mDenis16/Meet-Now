@@ -1,0 +1,47 @@
+.layout {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    display: flex;
+}
+
+.layout .views {
+    background-color: green;
+    width: 100%;
+    height: 100%;
+    order: 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.layout .views .grid {
+    display: flexbox;
+   
+    justify-content: center;
+    overflow-y: scroll;
+    width: 90%;
+    height: 90%;
+}
+
+.layout .views .control {
+    background-color: violet;
+    height: 10%;
+    width: 100%;
+    bottom: 0;
+    position: absolute;
+}
+
+.layout .details {
+    width: 25%;
+    height: 100%;
+    order: 1;
+}
+
+.layout .views .grid .view {
+    width: 33%;
+    height: 25%;
+    border-radius: 5px;
+    background-color: teal;
+}

@@ -18,14 +18,36 @@ namespace app.Controllers
         public async Task<JsonResult> fetchRoomData(string uuid)
         {
             if (Request.Cookies["auth"] == null)
-                return Json(new { success = false, message = "You are not logged in." });
+                return Json(new { success = false, error_code = 1, message = "You are not logged in." });
 
             var fetchUser = await cache.user.fetchUserData((string)Request.Cookies["auth"]);
             if (fetchUser.username == null)
-                return Json(new { success = false, message = "You are not logged in." });
+                return Json(new { success = false, error_code = 1, message = "You are not logged in." });
 
-        
-            return Json(new { success = true, roomData = await cache.room.fetchRoomData(uuid) });
+            var _roomData = await cache.room.fetchRoomData(uuid);
+            if (_roomData.uuid == null)
+                return Json( new { success = false, error_code = 1, message = "This room doesnt exist." } );
+
+
+            return Json(new { success = true,  roomData = _roomData } );
+        }
+        [HttpGet( "room/requestJoin/{uuid}" )]
+        public async Task<JsonResult> requestJoinRoom( string uuid )
+        {
+            if ( Request.Cookies[ "auth" ] == null )
+                return Json( new { success = false, error_code = 1, message = "You are not logged in." } );
+
+            var fetchUser = await cache.user.fetchUserData((string)Request.Cookies["auth"]);
+            if ( fetchUser.username == null )
+                return Json( new { success = false, error_code = 1, message = "You are not logged in." } );
+
+            var _roomData = await cache.room.fetchRoomData(uuid);
+            if ( _roomData.uuid == null )
+                return Json( new { success = false, error_code = 1, message = "This room doesnt exist." } );
+
+            _roomData.addParticipant( fetchUser.uuid );
+      
+            return Json( new { success = true, roomData = _roomData } );
         }
         [HttpGet( "room/createRoom" )]
         public async Task<JsonResult> createRoom( )
@@ -56,13 +78,10 @@ namespace app.Controllers
             var fetchUser = await cache.user.fetchUserData((string)Request.Cookies["auth"]);
             if (fetchUser.username == null)
                 return Json(new { success = false, message = "You are not logged in." });
-            
-            if (fetchUser.lastChannel.Length == 0)
-                return Json(new { success = false, message = "You are not in a channel." });
-
+      
 
             cache.message.model message = new cache.message.model();
-            message.channel = fetchUser.lastChannel;
+           
             message.content = data.content;
             message.time = DateTime.Now;
             message.senderuuid = fetchUser.uuid;

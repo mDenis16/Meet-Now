@@ -81,7 +81,7 @@
     display: flex;
 }
 .content .button-group .button{
-    width: 25% !important;
+    width: 25%;
     height: 40%;
     background: #00796b;
     color: #fff;

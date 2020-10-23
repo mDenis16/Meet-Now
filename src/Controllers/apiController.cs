@@ -25,7 +25,7 @@ namespace app.Controllers
             if (fetchUser.username == null)
                 return Json(new { success = false, message = "You are not logged in." });
 
-            return Json(new { success = true, user = new { username = fetchUser.username } });
+            return Json(new { success = true, user = new { username = fetchUser.username, uuid = fetchUser.uuid } });
         }
 
 

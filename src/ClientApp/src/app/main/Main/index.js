@@ -38,23 +38,19 @@ export class Main extends Component {
             })
             .catch(function (err) { console.log(err.name + ": " + err.message); });
     }
-    createNew(){
+    createNew() {
         axios.get('room/createRoom')
-        .then(res => {
-          this.setState({generateLink: res.data.link});
-        })
-       
+            .then(res => {
+                this.setState({ generateLink: res.data.link });
+            })
+
     }
 
     render() {
 
         return (
             <>
-                <div className="header">
-
-                    <div className="title">Meet Now</div>
-                    <div className="name">{this.state.user}</div>
-                </div>
+               
 
                 <div className="content">
                     <div className="left-side">
@@ -66,7 +62,7 @@ export class Main extends Component {
                        </div>
                         <div className="button-group">
                             <div className="button" onClick={this.createNew.bind(this)}>Intalnire noua</div>
-                            <div className="input"><input type="text" value={this.state.generateLink} className="element"/></div>
+                            <div className="input"><input type="text" value={this.state.generateLink} className="element" /></div>
                         </div>
                     </div>
 

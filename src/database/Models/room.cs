@@ -30,14 +30,29 @@ namespace app.cache
                     return;
 
                 this.participants.ForEach( ( participant participant ) => { participant.send( rpc_types.ON_USER_LEAVE, uuid ); } );
+                this.participants.RemoveAt( index );
             }
             public void addParticipant( string uuid )
             {
                 var index = this.participants.FindIndex( participant => participant.uuid == uuid );
+                if ( index != -1 )
+                    return;
+
+                var new_participant = new participant( uuid );
+
+              
+                this.participants.Add( new_participant );
+            }
+            public void onParticipantConnect( string uuid, string connection_id, string peer_id )
+            {
+                Console.WriteLine( $"CONNECTED USER WITH UID {uuid} and peer_id {peer_id}" );
+                var index = this.participants.FindIndex( participant => participant.uuid == uuid );
                 if ( index == -1 )
                     return;
 
-                this.participants.ForEach( ( participant participant ) => { participant.send( rpc_types.ON_USER_JOIN, uuid ); } );
+                this.participants[ index ].connection_id = connection_id;
+                this.participants[ index ].peer_id = peer_id;
+                this.participants.ForEach( ( participant participant ) => { participant.send( rpc_types.ON_USER_JOIN, Newtonsoft.Json.JsonConvert.SerializeObject( this.participants[ index ] ) ); } );
             }
             public roomData( )
             {
@@ -46,19 +61,30 @@ namespace app.cache
             public roomData( int participants_limit, string uuid_creator)
             {
                 this.participants_limit = participants_limit;
+                this.uuid_creator = uuid_creator;
                 this.participants = new List<participant>( );
                 this.uuid = Guid.NewGuid( ).ToString( );
             }
         }
         public class participant
         {
-            public string uuid { get; set; }
+            
             public bool owner { get; set; }
-            public string name { get; set; }
             public string connection_id { get; set; }
+            public string uuid { get; set; }
+            public string peer_id { get; set; }
+            public async Task<user.model> getUserModel( )
+            {
+                return await user.fetchUserData( "", this.uuid );
+            }
             public async void send( string event_name, string data )
             {
-                await ChatHub.Current.Clients.Client( this.connection_id ).SendAsync( event_name, data );
+                if ( this.connection_id != null)
+                   await ChatHub.Current.Clients.Client( this.connection_id ).SendAsync( event_name, data );
+            }
+            public participant(string uuid )
+            {
+                this.uuid = uuid;
             }
         }
         public static async Task<string> createRoom( string uuid_creator, int partcipants_limit  = 30 )
@@ -66,7 +92,7 @@ namespace app.cache
           
 
             roomData nonCached = new roomData(partcipants_limit, uuid_creator);
-
+            Console.WriteLine( "nonCached.uuid_creator" + nonCached.uuid_creator );
             await databaseManager.updateQuery( "INSERT INTO rooms (uuid, uuid_creator, participants_limit) VALUES(@uuid, @uuid_creator, @participants_limit)" )
                 .addValue("@uuid", nonCached.uuid)
                 .addValue( "@uuid_creator", nonCached.uuid_creator )
@@ -76,6 +102,7 @@ namespace app.cache
             rooms.Add( nonCached );
             return nonCached.uuid;
         }
+   
         public static async Task<roomData> fetchRoomData( string uuid )
         {
             var roomIndex = rooms.FindIndex(room => room.uuid == uuid);
@@ -84,7 +111,7 @@ namespace app.cache
 
             roomData nonCached = new roomData();
 
-            await databaseManager.selectQuery( "SELECT uuid, uuid_creator, participants_limit FROM meets WHERE uuid = @uuid LIMIT 1", delegate ( DbDataReader reader ) {
+            await databaseManager.selectQuery( "SELECT uuid, uuid_creator, participants_limit FROM rooms WHERE uuid = @uuid LIMIT 1", delegate ( DbDataReader reader ) {
                 if ( reader.HasRows )
                 {
                     nonCached.participants_limit = ( int ) reader[ "participants_limit" ];

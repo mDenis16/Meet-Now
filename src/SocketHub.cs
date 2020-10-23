@@ -22,26 +22,13 @@ namespace app
           await  Clients.All.SendAsync("voice", buffer);
 
         }
-        public async Task connectedUser(string auth)
+        public async Task connectedUser(string auth, string room_id, string peer_id)
         {
-
+            var userData = await cache.user.fetchUserData( auth );
             var index = cache.user.list.FindIndex(a => a.auth == auth);
-            if (index != -1)
-            {
-
-
-               
-
-                if (cache.user.list[index].username != null)
-                {
-
-                    cache.user.list[index].connectionId = Context.ConnectionId;
-
-                    Console.WriteLine("conected user " + cache.user.list[index].username + "connection id " + cache.user.list[index].connectionId);
-                }
-                else
-                    Console.WriteLine("User is'nt connected.");
-            }
+            var roomIndex = cache.room.rooms.FindIndex(a => a.uuid == room_id);
+            if ( userData.username != null && roomIndex != -1)
+                cache.room.rooms[ roomIndex ].onParticipantConnect( userData.uuid, Context.ConnectionId, peer_id );
 
         }
     }

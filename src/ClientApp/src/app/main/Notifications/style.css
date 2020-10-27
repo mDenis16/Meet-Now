@@ -1,0 +1,135 @@
+@charset "UTF-8";
+
+
+.notification-container {
+  box-sizing: border-box;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin-bottom: 12%;
+  z-index: 999999;
+  width: 320px;
+  padding: 0px 15px;
+  max-height: calc(100% - 30px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.notification-message{
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+}
+.notification-message .message{
+    width: 100%;
+    height: 100%;
+    
+}
+.notification-info {
+    background-color: white !important;
+    border-radius: 14px !important;
+    color: black !important;
+    margin: 5px;
+    text-align: left;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15) !important;
+}
+.notification-info:before {
+   position: absolute !important;
+   content: none !important;
+   z-index: 0 !important;
+  
+   top: 0 !important;
+
+}
+.notification {
+  box-sizing: border-box;
+  padding: 15px 15px 15px 15px;
+  border-radius: 2px;
+  color: #fff;
+  background-color: #ccc;
+  box-shadow: 0 0 12px #999;
+  cursor: pointer;
+  font-size: 1em;
+  line-height: 1.2em;
+  position: relative;
+  opacity: 0.9;
+  margin-top: 15px;
+}
+
+.notification .title {
+  font-size: 1em;
+  line-height: 1.2em;
+  font-weight: bold;
+  margin: 0 0 5px 0;
+}
+
+.notification:hover, .notification:focus {
+  opacity: 1;
+}
+
+.notification-enter {
+  visibility: hidden;
+  transform: translate3d(100%, 0, 0);
+}
+
+.notification-enter.notification-enter-active {
+  visibility: visible;
+  transform: translate3d(0, 0, 0);
+  transition: all 0.4s;
+}
+
+.notification-leave {
+  visibility: visible;
+  transform: translate3d(0, 0, 0);
+}
+
+.notification-leave.notification-leave-active {
+  visibility: hidden;
+  transform: translate3d(100%, 0, 0);
+  transition: all 0.4s;
+}
+
+.notification:before {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  margin-top: -14px;
+  display: block;
+  font-family: 'Notification';
+  width: 28px;
+  height: 28px;
+  font-size: 28px;
+  text-align: center;
+  line-height: 28px;
+}
+
+.notification-info {
+  background-color: #2f96b4;
+}
+
+.notification-info:before {
+  content: "";
+}
+
+.notification-success {
+  background-color: #51a351;
+}
+
+.notification-success:before {
+  content: "";
+}
+
+.notification-warning {
+  background-color: #f89406;
+}
+
+.notification-warning:before {
+  content: "";
+}
+
+.notification-error {
+  background-color: #bd362f;
+}
+
+.notification-error:before {
+  content: "";
+}

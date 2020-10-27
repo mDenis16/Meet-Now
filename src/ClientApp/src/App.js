@@ -4,7 +4,9 @@ import { ConferenceLayout } from './app/main/Conference/'
 import { Login } from './app/main/Login/'
 import { Main } from './app/main/Main'
 import axios from "axios";
-
+import './app/main/Notifications/style.css';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
+ 
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 class AppHeader extends Component {
 
@@ -26,6 +28,7 @@ export default class App extends Component {
     super(props);
     this.state = { userData: {}, joined: false, logged: false, loading: true };
     this.mainRef = React.createRef();
+    Window.NotificationManager =  NotificationManager;
   }
   componentDidMount() {
 
@@ -76,6 +79,7 @@ export default class App extends Component {
           <Route path="/room/:roomId" exact render={(props) => <ConferenceLayout requestJoin={this.requestJoin.bind(this)} joined={this.state.joined}  userData={this.state.userData} {...props} />} />
 
         </Switch>
+        <NotificationContainer/>
       </>
 
 

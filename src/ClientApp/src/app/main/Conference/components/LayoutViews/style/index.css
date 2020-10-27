@@ -14,10 +14,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    
 }
 
 .layout .views .grid {
-    display: flexbox;
+    display: flex;
    
     justify-content: center;
     overflow-y: scroll;
@@ -43,5 +44,23 @@
     width: 33%;
     height: 25%;
     border-radius: 5px;
+    margin: 5px;
     background-color: teal;
+    position: relative;
+}
+.layout .views .grid .view video { 
+    width: 100%;
+    height: 100%;
+}
+.layout .views .grid .view .name { 
+    width: 100%;
+    height: auto;
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    bottom: 0;
+    text-align: center;
 }

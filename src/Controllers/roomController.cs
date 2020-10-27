@@ -31,7 +31,29 @@ namespace app.Controllers
 
             return Json(new { success = true,  roomData = _roomData } );
         }
-        [HttpGet( "room/requestJoin/{uuid}" )]
+        [HttpGet( "room/fetchParticipants/{uuid}/{peer_uuid}" )]
+        public async Task<JsonResult> fetchParticipants( string uuid, string peer_uuid )
+        {
+            if ( Request.Cookies[ "auth" ] == null )
+                return Json( new { success = false, error_code = 1, message = "You are not logged in." } );
+
+            var fetchUser = await cache.user.fetchUserData((string)Request.Cookies["auth"]);
+            if ( fetchUser.username == null )
+                return Json( new { success = false, error_code = 1, message = "You are not logged in." } );
+
+            var _roomData = await cache.room.fetchRoomData(uuid);
+            if ( _roomData.uuid == null )
+                return Json( new { success = false, error_code = 1, message = "This room doesnt exist." } );
+            _roomData.addParticipant( fetchUser.uuid );
+            await _roomData.fetchParticipants( );
+            Console.WriteLine( $"User {fetchUser.username} is fetching participants with peer id {peer_uuid}" );
+            _roomData.participants.Find( participant => participant.uuid == fetchUser.uuid ).peer_id = peer_uuid;
+            //this.participants[ index ].connection_id = connection_id;
+            //this.participants[ index ].peer_id = peer_id;
+            return Json( new { success = true, roomData = _roomData } );
+        }
+        
+        [ HttpGet( "room/requestJoin/{uuid}" )]
         public async Task<JsonResult> requestJoinRoom( string uuid )
         {
             if ( Request.Cookies[ "auth" ] == null )
@@ -45,9 +67,26 @@ namespace app.Controllers
             if ( _roomData.uuid == null )
                 return Json( new { success = false, error_code = 1, message = "This room doesnt exist." } );
 
-            _roomData.addParticipant( fetchUser.uuid );
+           
       
             return Json( new { success = true, roomData = _roomData } );
+        }
+        [HttpGet( "room/fetchParticipant/{room_id}/{peer_id}" )]
+        public async Task<JsonResult> fetchParticipant( string room_id, string peer_id )
+        {
+            if ( Request.Cookies[ "auth" ] == null )
+                return Json( new { success = false, error_code = 1, message = "You are not logged in." } );
+
+            var fetchUser = await cache.user.fetchUserData((string)Request.Cookies["auth"]);
+            if ( fetchUser.username == null )
+                return Json( new { success = false, error_code = 1, message = "You are not logged in." } );
+
+            var _roomData = await cache.room.fetchRoomData(room_id);
+            if ( _roomData.uuid == null )
+                return Json( new { success = false, error_code = 1, message = "This room doesnt exist." } );
+
+            
+            return Json( new { success = true, participant = _roomData.participants.Find(participant => participant.peer_id == peer_id)  } );
         }
         [HttpGet( "room/createRoom" )]
         public async Task<JsonResult> createRoom( )

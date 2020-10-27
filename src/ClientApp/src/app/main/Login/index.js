@@ -25,7 +25,7 @@ export class Login extends Component {
     }
     handleLogin(e) {
         e.preventDefault();
-        axios.post('https://localhost:5001/auth/login', {
+        axios.post('/auth/login', {
             email: this.state.email,
             password: this.state.password
         })
@@ -48,7 +48,7 @@ export class Login extends Component {
                     <div className="header">Google Meets</div>
                     <div className="input"><input className="field" value={this.state.email} type="email" placeholder="example@mail.com" name="email" onChange={this.handleChange}></input></div>
                     <div className="input"><input className="field" value={this.state.password} placeholder="***" onChange={this.handleChange} name="password" type="password"></input></div>
-                    <div className="button" onClick={this.handleLogin}>Login</div>
+                    <div className="button" onClick={this.handleLogin.bind(this)}>Login</div>
                 </div>
             </div>
         );

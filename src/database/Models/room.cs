@@ -15,6 +15,7 @@ namespace app.cache
             ON_USER_JOIN = "ON_USER_JOIN",
             ON_USER_LEAVE = "ON_USER_LEAVE";
         }
+        
         public class roomData
         {
             public string uuid { get; set; }
@@ -23,14 +24,14 @@ namespace app.cache
 
             public List<participant> participants { get; set; }
 
-            public void removeParticipant( string uuid )
+         
+            public  async Task   disconnectParticipant( cache.room.participant participant )
             {
-                var index = this.participants.FindIndex( participant => participant.uuid == uuid );
-                if ( index == -1 )
-                    return;
 
-                this.participants.ForEach( ( participant participant ) => { participant.send( rpc_types.ON_USER_LEAVE, uuid ); } );
-                this.participants.RemoveAt( index );
+                participant.online = false;
+                await participant.getUserModel( );
+                this.participants.ForEach( async ( participant part ) => { await part.send( rpc_types.ON_USER_LEAVE, Newtonsoft.Json.JsonConvert.SerializeObject( new { uuid = participant.uuid, username = participant.user_data.username } ) ); } );
+
             }
             public void addParticipant( string uuid )
             {
@@ -43,7 +44,7 @@ namespace app.cache
               
                 this.participants.Add( new_participant );
             }
-            public void onParticipantConnect( string uuid, string connection_id, string peer_id )
+            public async Task  onParticipantConnect( string uuid, string connection_id, string peer_id )
             {
                 Console.WriteLine( $"CONNECTED USER WITH UID {uuid} and peer_id {peer_id}" );
                 var index = this.participants.FindIndex( participant => participant.uuid == uuid );
@@ -52,7 +53,15 @@ namespace app.cache
 
                 this.participants[ index ].connection_id = connection_id;
                 this.participants[ index ].peer_id = peer_id;
-                this.participants.ForEach( ( participant participant ) => { participant.send( rpc_types.ON_USER_JOIN, Newtonsoft.Json.JsonConvert.SerializeObject( this.participants[ index ] ) ); } );
+                this.participants[ index ].online = true;
+                this.participants.ForEach( async ( participant participant ) => { await participant.send( rpc_types.ON_USER_JOIN, Newtonsoft.Json.JsonConvert.SerializeObject( new { uuid = this.participants[ index ].uuid, username = this.participants[ index ].user_data.username } ) ); } );
+            }
+            public async Task fetchParticipants( )
+            {
+               this.participants.ForEach( async participant => {
+                  if ( participant.user_data == null )
+                      await participant.getUserModel( );
+              } );
             }
             public roomData( )
             {
@@ -73,11 +82,14 @@ namespace app.cache
             public string connection_id { get; set; }
             public string uuid { get; set; }
             public string peer_id { get; set; }
-            public async Task<user.model> getUserModel( )
+
+            public bool online { get; set; }
+            public async  Task getUserModel( )
             {
-                return await user.fetchUserData( "", this.uuid );
+              this.user_data = await user.fetchUserData( "", this.uuid );
             }
-            public async void send( string event_name, string data )
+            public user.model user_data { get; set; }
+            public async Task send( string event_name, string data )
             {
                 if ( this.connection_id != null)
                    await ChatHub.Current.Clients.Client( this.connection_id ).SendAsync( event_name, data );

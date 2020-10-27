@@ -13,18 +13,22 @@ export class Video extends Component {
     }
     setObjStream(stream){
         this.videoTag.current.srcObject = stream;
-        console.log(stream);
+       
     }
 
     componentDidMount() {
 
-
+console.log('rendered  for ' + this.props.name )
     }
     render() {
 
 
         return (
-            <video autoPlay muted className="view"  ref={this.videoTag} ></video>
+            <div className="view" style={{order: this.props.order}}>
+                <div className="name">{this.props.name}</div>
+                <video autoPlay muted  ref={this.videoTag}/>
+            </div>
+           
         );
     }
 }
